@@ -125,3 +125,34 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Security settings
+DEBUG = False  # Always False in production
+
+# Browser security
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# CSRF and session cookies
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Additional recommendations
+SECURE_HSTS_SECONDS = 3600  # HTTP Strict Transport Security
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+
+
+INSTALLED_APPS += ["csp"]
+
+MIDDLEWARE += ["csp.middleware.CSPMiddleware"]
+
+# Example CSP policy
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
+CSP_IMG_SRC = ("'self'", 'data:')
+
