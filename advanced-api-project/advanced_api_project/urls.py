@@ -22,4 +22,7 @@ urlpatterns = [
     
     path('api/', include('api.urls')),  # our API endpoints start with /api/
     path('api-auth/', include('rest_framework.urls')), 
+    
+    path('api-auth/', include('rest_framework.urls')),
+
 ]
