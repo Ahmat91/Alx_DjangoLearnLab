@@ -1,40 +1,34 @@
+# api/views.py
 
-
-from rest_framework import generics, permissions
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .models import Book
 from .serializers import BookSerializer
 
-
-class BookListView(generics.ListAPIView):
-    
+class ListView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # no login required
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Updated
 
 
-class BookDetailView(generics.RetrieveAPIView):
-    
+class DetailView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Updated
 
 
-class BookCreateView(generics.CreateAPIView):
-   
+class CreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # must login
+    permission_classes = [IsAuthenticated]  # Must login
 
-
-class BookUpdateView(generics.UpdateAPIView):
-    
+class UpdateView(generics.UpdateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Must login
 
 
-class BookDeleteView(generics.DestroyAPIView):
-    
+class DeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Must login
