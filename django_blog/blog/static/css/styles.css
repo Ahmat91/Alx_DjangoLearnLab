@@ -126,3 +126,57 @@ footer {
 .form-container label {
     display: none;
 }
+
+/* Blog Post Specific Styles */
+
+.post-entry {
+    padding: 15px 0;
+}
+
+.post-entry h2 a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.post-entry h2 a:hover {
+    color: #0056b3;
+}
+
+.post-meta p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.post-content {
+    line-height: 1.6;
+    margin-top: 20px;
+}
+
+.button-link {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.post-actions a {
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+.button-edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.button-delete {
+    background-color: #dc3545;
+    color: white;
+}

@@ -1,6 +1,7 @@
 
 from django.db import models
-from django.contrib.auth.models import User # Import the User model
+from django.contrib.auth.models import User 
+from django.urls import reverse
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -11,3 +12,9 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        """Returns the canonical URL for the Post object."""
+        # 'post_detail' is the name of the URL pattern defined in blog/urls.py
+        # It requires the primary key (pk) of the post.
+        return reverse('post_detail', kwargs={'pk': self.pk})

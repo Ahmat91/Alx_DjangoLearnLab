@@ -1,0 +1,26 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <div class="container post-detail">
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">
+            <p>By **{{ post.author.username }}** on {{ post.published_date|date:"F j, Y, P" }}</p>
+        </div>
+        
+        {% if post.author == user %}
+            <div class="post-actions">
+                <a href="{% url 'post_update' pk=post.pk %}" class="button-edit">Edit Post</a>
+                <a href="{% url 'post_delete' pk=post.pk %}" class="button-delete">Delete Post</a>
+            </div>
+        {% endif %}
+        
+        <div class="post-content">
+            <p>{{ post.content|linebreaksbr }}</p>
+        </div>
+        
+        <p class="back-link"><a href="{% url 'posts' %}">&laquo; Back to All Posts</a></p>
+    </div>
+{% endblock %}

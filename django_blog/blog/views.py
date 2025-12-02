@@ -8,6 +8,17 @@ from django.contrib.auth.forms import UserChangeForm
 from .forms import CustomUserCreationForm # Import the custom form
 from django.contrib import messages
 
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView
+)
+from .models import Post
+from .forms import CustomUserCreationForm, PostForm
+from django.urls import reverse_lazy
 
 # --- 1. Custom Registration View ---
 def register_view(request):
@@ -69,3 +80,55 @@ def home_view(request):
 # Placeholder for posts view
 def posts_view(request):
     return render(request, 'blog/posts.html', {'title': 'Blog Posts'})
+
+
+class PostListView(ListView):
+    """Displays a list of all blog posts."""
+    model = Post
+    template_name = 'blog/posts.html' # <app>/<model>_list.html
+    context_object_name = 'posts'     # Renames the default object_list to 'posts'
+    ordering = ['-published_date']    # Orders posts from newest to oldest
+    paginate_by = 5                   # Optional: Add pagination
+
+class PostDetailView(DetailView):
+    """Displays a single blog post."""
+    model = Post
+    template_name = 'blog/post_detail.html' # <app>/<model>_detail.html
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    """Allows authenticated users to create a new post."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html' # Reused for update
+
+    # CRITICAL: Automatically set the author to the logged-in user
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        messages.success(self.request, "Your post has been created!")
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Allows the author to edit their existing post."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+
+    # CRITICAL: Check that the logged-in user is the author of the post
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
+
+    def form_valid(self, form):
+        messages.success(self.request, "Your post has been updated!")
+        return super().form_valid(form)
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Allows the author to delete their post."""
+    model = Post
+    template_name = 'blog/post_confirm_delete.html'
+    success_url = reverse_lazy('posts') # Redirects to the post list after deletion
+
+    # CRITICAL: Check that the logged-in user is the author of the post
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author

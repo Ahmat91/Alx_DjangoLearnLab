@@ -1,0 +1,24 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if view.object %}Edit Post{% else %}Create New Post{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>{% if view.object %}Edit: {{ view.object.title }}{% else %}Create New Post{% endif %}</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">
+                {% if view.object %}Update Post{% else %}Publish Post{% endif %}
+            </button>
+        </form>
+        
+        {% if view.object %}
+            <p><a href="{% url 'post_delete' pk=view.object.pk %}" style="color: red;">Delete this post</a></p>
+        {% endif %}
+    </div>
+{% endblock %}
