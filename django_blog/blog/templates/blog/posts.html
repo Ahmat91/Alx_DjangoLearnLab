@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Blog Posts{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h1>All Blog Posts</h1>
+        <p>This page will soon display a list of all posts.</p>
+
+        {% if user.is_authenticated %}
+            <p>Ready to create a new post?</p>
+        {% else %}
+            <p>Please log in to see full content.</p>
+        {% endif %}
+    </div>
+{% endblock %}

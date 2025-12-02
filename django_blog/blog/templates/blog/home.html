@@ -1,0 +1,24 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Home - Django Blog{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome to the Django Blog!</h1>
+        <p>This is the homepage of your new blogging platform. Use the navigation above to explore posts, register, or log in.</p>
+        
+        {% if user.is_authenticated %}
+            <p>Hello, **{{ user.username }}**! You are logged in.</p>
+            <p>Ready to write? Or maybe just view your <a href="{% url 'profile' %}">Profile</a>.</p>
+        {% else %}
+            <p>You are not logged in. Please <a href="{% url 'login' %}">Log In</a> or <a href="{% url 'register' %}">Register</a>.</p>
+        {% endif %}
+
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

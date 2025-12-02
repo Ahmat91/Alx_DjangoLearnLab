@@ -1,0 +1,23 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>Register New Account</h2>
+        
+        {% for message in messages %}
+            <div class="alert error">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+    </div>
+{% endblock %}
