@@ -67,14 +67,6 @@ TEMPLATES = [
     },
 ]
 
-# Static File Configuration
-STATIC_URL = '/static/'
-
-# Tell Django where to look for static files at the project level
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
 WSGI_APPLICATION = 'django_blog.wsgi.application'
 
 
