@@ -11,10 +11,11 @@
         </div>
         
         {% if post.author == user %}
-            <div class="post-actions">
-                <a href="{% url 'post_update' pk=post.pk %}" class="button-edit">Edit Post</a>
-                <a href="{% url 'post_delete' pk=post.pk %}" class="button-delete">Delete Post</a>
-            </div>
+        <div class="post-actions">
+            <a href="{% url 'post_update' pk=post.pk %}" class="button-edit">Edit Post</a>
+            
+            <a href="{% url 'post_delete' pk=post.pk %}" class="button-delete">Delete Post</a>
+        </div>
         {% endif %}
         
         <div class="post-content">
