@@ -28,7 +28,7 @@ class PostForm(forms.ModelForm):
         # We only let the user edit title and content.
         # The 'author' field is set automatically in the view.
         # The 'published_date' field is set automatically by auto_now_add.
-        fields = ('title', 'content')
+        fields = ('title', 'content', 'tags')
 
 class CommentForm(forms.ModelForm):
  

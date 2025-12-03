@@ -271,3 +271,62 @@ footer {
 
 .edit-link { color: #ffc107; }
 .delete-link { color: #dc3545; }
+
+/* blog/static/css/styles.css (Append these styles) */
+
+/* Search Form in Header */
+.search-form {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    margin-top: 5px;
+}
+
+.search-form input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    width: 250px;
+}
+
+.search-form button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+/* Tag Styling */
+.post-tags {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.tag-label {
+    font-weight: bold;
+    color: #555;
+    margin-right: 5px;
+}
+
+.tag-link {
+    display: inline-block;
+    background-color: #e0f7fa; /* Light cyan */
+    color: #00796b; /* Dark cyan */
+    padding: 3px 8px;
+    margin-right: 5px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background-color 0.2s;
+}
+
+.tag-link:hover {
+    background-color: #b2ebf2;
+}
+
+.tag-heading-name {
+    color: #007bff;
+    font-style: italic;
+}

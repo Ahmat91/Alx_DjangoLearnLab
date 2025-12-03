@@ -17,7 +17,7 @@ from django.views.generic import (
 
 from .models import Post, Comment
 from .forms import CustomUserCreationForm, PostForm, CommentForm
-
+from django.db.models import Q
 
 # --- 1. Authentication Views ---
 
@@ -187,3 +187,52 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         # Redirect back to the post detail page
         messages.success(self.request, "Comment deleted successfully.")
         return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
+    
+    
+# --- New: Search View ---
+class SearchResultsView(ListView):
+    """Displays posts matching a keyword search in title, content, or tags."""
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        if query:
+            # Q objects allow complex lookups (OR logic)
+            # 1. Search title or content
+            queryset = Post.objects.filter(
+                Q(title__icontains=query) | Q(content__icontains=query)
+            )
+            # 2. Search tags (using taggit's filtering)
+            posts_by_tag = Post.objects.filter(tags__name__icontains=query)
+            
+            # Combine and get unique results
+            return (queryset | posts_by_tag).distinct().order_by('-published_date')
+        
+        return Post.objects.none() # Return empty queryset if no query
+
+
+# --- New: Posts by Tag View ---
+class TagPostListView(ListView):
+    """Displays posts filtered by a specific tag name."""
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        # The tag name is passed via the URL (kwargs)
+        tag_name = self.kwargs.get('tag_name')
+        
+        if tag_name:
+            # Filter posts that have the exact tag name
+            queryset = Post.objects.filter(tags__name__in=[tag_name]).order_by('-published_date')
+            return queryset
+        
+        return Post.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag_name'] = self.kwargs.get('tag_name')
+        return context
