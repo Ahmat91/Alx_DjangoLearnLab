@@ -5,7 +5,7 @@ from . import views
 from django.contrib.auth.views import LoginView, LogoutView
 from .views import (
     PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
-    add_comment_to_post, CommentUpdateView, CommentDeleteView 
+    CommentCreateView, CommentUpdateView, CommentDeleteView 
 )
 
 urlpatterns = [
@@ -21,7 +21,7 @@ urlpatterns = [
 
     # --- Comment URLs (New) ---
     # Action URL for creating a comment (redirects back to detail view)
-    path('post/<int:pk>/comment/add/', views.add_comment_to_post, name='add_comment_to_post'),
+    path('post/<int:pk>/comment/add/', CommentCreateView.as_view(), name='add_comment_to_post'), 
     
     # Comment CRUD: use comment's PK for update/delete
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update'),

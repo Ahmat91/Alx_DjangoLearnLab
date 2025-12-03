@@ -128,23 +128,35 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # --- 3. Comment Management Views ---
 
-@login_required
-def add_comment_to_post(request, pk):
-    """Handles POST request for adding a new comment to a specific post."""
-    post = get_object_or_404(Post, pk=pk)
+# blog/views.py (Within the Comment Management Views section)
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Handles creation of a new comment, redirecting back to the post detail.
+    Note: We override form_valid to link the comment to the specific post and user.
+    """
+    model = Comment
+    form_class = CommentForm
+    # This view doesn't need a specific template for the form, 
+    # as the form is rendered on post_detail.html.
+    fields = ['content'] 
     
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.author = request.user
-            comment.save()
-            messages.success(request, "Your comment has been posted!")
-            return redirect('post_detail', pk=post.pk)
-    
-    messages.error(request, "Could not post comment. Please try again.")
-    return redirect('post_detail', pk=post.pk)
+    # We don't use a template, but Django needs this attribute
+    template_name = 'blog/post_detail.html'
+
+    def form_valid(self, form):
+        # The PK from the URL must be passed to the view, typically via kwargs
+        post_pk = self.kwargs.get('pk')
+        post = get_object_or_404(Post, pk=post_pk)
+        
+        form.instance.author = self.request.user
+        form.instance.post = post
+        messages.success(self.request, "Your comment has been posted!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect back to the post detail page where the comment was added
+        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
 
 
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
