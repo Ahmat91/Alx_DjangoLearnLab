@@ -6,7 +6,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from .views import (
     PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
     CommentCreateView, CommentUpdateView, CommentDeleteView ,
-    SearchResultsView, TagPostListView
+    SearchResultsView, PostByTagListView
 )
 
 urlpatterns = [
@@ -15,7 +15,7 @@ urlpatterns = [
     
     # --- Search and Tagging URLs (New) ---
     path('search/', SearchResultsView.as_view(), name='search_results'),
-    path('tags/<str:tag_name>/', TagPostListView.as_view(), name='posts_by_tag'),
+    path('tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts_by_tag'),
     
     # --- Blog Post CRUD URLs ---
     path('posts/', PostListView.as_view(), name='posts'),

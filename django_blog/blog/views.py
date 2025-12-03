@@ -214,7 +214,7 @@ class SearchResultsView(ListView):
 
 
 # --- New: Posts by Tag View ---
-class TagPostListView(ListView):
+class PostByTagListView(ListView):
     """Displays posts filtered by a specific tag name."""
     model = Post
     template_name = 'blog/posts_by_tag.html'
