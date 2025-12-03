@@ -1,0 +1,23 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if view.object %}Edit Comment{% else %}Add Comment{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>{% if view.object %}Edit Comment{% else %}Add Comment{% endif %}</h2>
+        <p>On post: **{{ form.instance.post.title|default:"New Comment" }}**</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">
+                {% if view.object %}Update Comment{% else %}Submit Comment{% endif %}
+            </button>
+        </form>
+        
+        <p><a href="{% url 'post_detail' pk=form.instance.post.pk %}">Cancel</a></p>
+    </div>
+{% endblock %}

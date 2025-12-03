@@ -10,18 +10,58 @@
             <p>By **{{ post.author.username }}** on {{ post.published_date|date:"F j, Y, P" }}</p>
         </div>
         
+        <!-- Action Buttons (Only visible to the author) -->
         {% if post.author == user %}
-        <div class="post-actions">
-            <a href="{% url 'post_update' pk=post.pk %}" class="button-edit">Edit Post</a>
-            
-            <a href="{% url 'post_delete' pk=post.pk %}" class="button-delete">Delete Post</a>
-        </div>
+            <div class="post-actions">
+                <a href="{% url 'post_update' pk=post.pk %}" class="button-edit">Edit Post</a>
+                <a href="{% url 'post_delete' pk=post.pk %}" class="button-delete">Delete Post</a>
+            </div>
         {% endif %}
         
         <div class="post-content">
-            <p>{{ post.content|linebreaksbr }}</p>
+            {{ post.content|linebreaksbr }}
         </div>
         
         <p class="back-link"><a href="{% url 'posts' %}">&laquo; Back to All Posts</a></p>
+
+        <!-- Comment Section -->
+        <h3 class="comment-heading">Comments ({{ post.comments.count }})</h3>
+
+        <!-- Comment Creation Form -->
+        {% if user.is_authenticated %}
+            <div class="comment-form-container">
+                <form method="post" action="{% url 'add_comment_to_post' pk=post.pk %}">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                    <button type="submit" class="button-comment">Submit Comment</button>
+                </form>
+            </div>
+        {% else %}
+            <p class="login-prompt">Please <a href="{% url 'login' %}">log in</a> to leave a comment.</p>
+        {% endif %}
+        
+        <!-- List Existing Comments -->
+        <div class="comments-list">
+            {% for comment in post.comments.all %}
+                <div class="comment-item">
+                    <p class="comment-author">
+                        **{{ comment.author.username }}** <span class="comment-date">({{ comment.created_at|timesince }} ago)</span>
+                    </p>
+                    <p class="comment-content">{{ comment.content|linebreaksbr }}</p>
+                    
+                    <!-- Comment Actions -->
+                    {% if comment.author == user %}
+                        <div class="comment-actions">
+                            <a href="{% url 'comment_update' pk=comment.pk %}" class="action-link edit-link">Edit</a> |
+                            <a href="{% url 'comment_delete' pk=comment.pk %}" class="action-link delete-link">Delete</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>Be the first to leave a comment!</p>
+            {% endfor %}
+        </div>
+        
+
     </div>
 {% endblock %}

@@ -1,12 +1,10 @@
-# blog/views.py
-
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserChangeForm
-from .forms import CustomUserCreationForm # Import the custom form
 from django.contrib import messages
+from django.urls import reverse_lazy, reverse
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import (
@@ -16,15 +14,15 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
-from .models import Post
-from .forms import CustomUserCreationForm, PostForm
-from django.urls import reverse_lazy
 
-# --- 1. Custom Registration View ---
+from .models import Post, Comment
+from .forms import CustomUserCreationForm, PostForm, CommentForm
+
+
+# --- 1. Authentication Views ---
+
 def register_view(request):
-    """
-    Handles user registration using the CustomUserCreationForm.
-    """
+    """Handles user registration using the CustomUserCreationForm."""
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -32,36 +30,32 @@ def register_view(request):
             # Automatically log the user in after successful registration
             login(request, user)
             messages.success(request, "Registration successful! Welcome to Django Blog.")
-            return redirect('home') # Redirect to the home page (define 'home' URL later)
+            return redirect('home')
         else:
-            # Add error messages to be displayed in the template
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error in {field}: {error}")
-
     else:
         form = CustomUserCreationForm()
         
     return render(request, 'blog/register.html', {'form': form, 'title': 'Register'})
 
 
-# --- 2. Profile Management View ---
-@login_required # Ensures only logged-in users can access this page
+@login_required 
 def profile_view(request):
-    """
-    Allows authenticated users to view and update their profile details.
-    Uses the built-in UserChangeForm.
-    """
+    """Allows authenticated users to view and update their profile details."""
+    # Note: Using UserChangeForm imported from django.contrib.auth.forms
+    from django.contrib.auth.forms import UserChangeForm 
+    
     if request.method == 'POST':
-        # Pass the request.user instance to the form to pre-populate it
         form = UserChangeForm(request.POST, instance=request.user) 
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('profile') # Redirect to the same page to show updates
+            return redirect('profile')
     else:
-       
-        form = UserChangeForm(instance=request.user)
+        # Note: Exclude password fields from UserChangeForm unless specifically needed
+        form = UserChangeForm(instance=request.user) 
     
     context = {
         'form': form,
@@ -70,38 +64,38 @@ def profile_view(request):
     return render(request, 'blog/profile.html', context)
 
 
-# --- 3. Placeholder Home View (Required for navigation links) ---
 def home_view(request):
-    """
-    Placeholder for the home page.
-    """
+    """Placeholder for the home page."""
     return render(request, 'blog/home.html', {'title': 'Home'})
 
-# Placeholder for posts view
-def posts_view(request):
-    return render(request, 'blog/posts.html', {'title': 'Blog Posts'})
 
+# --- 2. Blog Post CRUD Views ---
 
 class PostListView(ListView):
     """Displays a list of all blog posts."""
     model = Post
-    template_name = 'blog/posts.html' # <app>/<model>_list.html
-    context_object_name = 'posts'     # Renames the default object_list to 'posts'
-    ordering = ['-published_date']    # Orders posts from newest to oldest
-    paginate_by = 5                   # Optional: Add pagination
+    template_name = 'blog/posts.html'
+    context_object_name = 'posts'
+    ordering = ['-published_date']
+    paginate_by = 5
 
 class PostDetailView(DetailView):
-    """Displays a single blog post."""
+    """Displays a single blog post and its comments, plus the comment form."""
     model = Post
-    template_name = 'blog/post_detail.html' # <app>/<model>_detail.html
+    template_name = 'blog/post_detail.html'
+
+    def get_context_data(self, **kwargs):
+        """Add the CommentForm to the context."""
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = CommentForm() 
+        return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     """Allows authenticated users to create a new post."""
     model = Post
     form_class = PostForm
-    template_name = 'blog/post_form.html' # Reused for update
+    template_name = 'blog/post_form.html'
 
-    # CRITICAL: Automatically set the author to the logged-in user
     def form_valid(self, form):
         form.instance.author = self.request.user
         messages.success(self.request, "Your post has been created!")
@@ -113,7 +107,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     form_class = PostForm
     template_name = 'blog/post_form.html'
 
-    # CRITICAL: Check that the logged-in user is the author of the post
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
@@ -126,9 +119,59 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """Allows the author to delete their post."""
     model = Post
     template_name = 'blog/post_confirm_delete.html'
-    success_url = reverse_lazy('posts') # Redirects to the post list after deletion
+    success_url = reverse_lazy('posts')
 
-    # CRITICAL: Check that the logged-in user is the author of the post
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
+
+# --- 3. Comment Management Views ---
+
+@login_required
+def add_comment_to_post(request, pk):
+    """Handles POST request for adding a new comment to a specific post."""
+    post = get_object_or_404(Post, pk=pk)
+    
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            messages.success(request, "Your comment has been posted!")
+            return redirect('post_detail', pk=post.pk)
+    
+    messages.error(request, "Could not post comment. Please try again.")
+    return redirect('post_detail', pk=post.pk)
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Allows the comment author to edit their existing comment."""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
+
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
+
+    def get_success_url(self):
+        # Redirect back to the post detail page
+        messages.success(self.request, "Comment updated successfully.")
+        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """Allows the comment author to delete their comment."""
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+    
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
+
+    def get_success_url(self):
+        # Redirect back to the post detail page
+        messages.success(self.request, "Comment deleted successfully.")
+        return reverse_lazy('post_detail', kwargs={'pk': self.object.post.pk})

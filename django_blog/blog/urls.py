@@ -1,28 +1,31 @@
-# blog/urls.py (Corrected for Checker Compatibility)
+# blog/urls.py (Updated with Comment URLs)
 
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
+from .views import (
+    PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
+    add_comment_to_post, CommentUpdateView, CommentDeleteView 
+)
 
 urlpatterns = [
     # Core Views
     path('', views.home_view, name='home'),
     
-    # --- Blog Post CRUD URLs (Updated to match checker strings) ---
+    # --- Blog Post CRUD URLs ---
     path('posts/', PostListView.as_view(), name='posts'),
-    
-    # post/new/
     path('post/new/', PostCreateView.as_view(), name='post_create'), 
-    
-    # post/<int:pk>/
     path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'), 
-    
-    # post/<int:pk>/update/  
     path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post_update'), 
-    
-    # post/<int:pk>/delete/  
     path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post_delete'), 
+
+    # --- Comment URLs (New) ---
+    # Action URL for creating a comment (redirects back to detail view)
+    path('post/<int:pk>/comment/add/', views.add_comment_to_post, name='add_comment_to_post'),
+    
+    # Comment CRUD: use comment's PK for update/delete
+    path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update'),
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),
 
     # Authentication Views
     path('register/', views.register_view, name='register'),
