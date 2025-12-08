@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from .models import CustomUser 
-# Assuming UserProfile is not being used as per initial task setup.
+
 
 # --- User Registration Serializer (Ensures password is hashed correctly) ---
 class UserCreateSerializer(serializers.ModelSerializer):

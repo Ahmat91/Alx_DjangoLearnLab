@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     # Local apps
     'accounts',
+    'posts',
 ]
 
 # Set the custom user model
