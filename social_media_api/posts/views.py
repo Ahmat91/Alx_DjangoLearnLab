@@ -10,6 +10,7 @@ from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsAuthorOrReadOnly # CRITICAL: Needs to exist
 from .pagination import StandardResultsPagination # CRITICAL: Needs to exist
 from django.db.models import Q
+from rest_framework import generics
 
 
 # --- 1. Post ViewSet (CRUD, Filtering, Pagination) ---
@@ -57,3 +58,21 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+        
+
+class FeedView(generics.ListAPIView):
+    """Returns a list of posts from users the current user is following."""
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated] # Must be logged in to see feed
+    pagination_class = StandardResultsPagination
+    
+    def get_queryset(self):
+        # 1. Get the list of users the current user is following.
+        # 'following' is the related_name we defined on CustomUser.
+        followed_users = self.request.user.following.all()
+
+        # 2. Filter posts authored by this list of followed users.
+        # Q() objects can be used for more complex filtering if needed later.
+        queryset = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+
+        return queryset
