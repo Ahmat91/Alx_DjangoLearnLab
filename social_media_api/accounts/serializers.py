@@ -2,11 +2,14 @@
 
 from rest_framework import serializers
 from .models import CustomUser
+from rest_framework.authtoken.models import Token 
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """Serializer for user registration."""
-    # Ensure password is write-only for security
-    password = serializers.CharField(write_only=True)
+    
+    password = serializers.CharField(write_only=True) 
+    
 
     class Meta:
         model = CustomUser
@@ -14,7 +17,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {'email': {'required': True}}
 
     def create(self, validated_data):
-        # Use Django's built-in method to handle password hashing
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -26,7 +28,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for reading and updating user profiles."""
     
-    # Add a field for the count of followers/following
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
 
