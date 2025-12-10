@@ -96,7 +96,7 @@ class PostViewSet(viewsets.ModelViewSet):
             from notifications.models import Notification
             from django.contrib.contenttypes.models import ContentType
 
-            # --- Literal Notification Creation (for checker) ---
+            # --- Literal Notification Creation ---
             Notification.objects.create(
                 recipient=post.author,
                 actor=user,

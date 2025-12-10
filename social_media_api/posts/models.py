@@ -49,7 +49,7 @@ class Like(models.Model):
         on_delete=models.CASCADE, 
         related_name='likes'
     )
-    author = models.ForeignKey(
+    user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
         related_name='likes'
@@ -58,7 +58,7 @@ class Like(models.Model):
 
     class Meta:
         # Ensures a user can only like a post once
-        unique_together = ('post', 'author') 
+        unique_together = ('post', 'user') 
 
     def __str__(self):
-        return f'{self.author.username} likes {self.post.title}'
+        return f'{self.user.username} likes {self.post.title}'
