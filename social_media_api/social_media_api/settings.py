@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     # Local apps
     'accounts',
     'posts',
+    'notifications', 
+   
 ]
 
 # Set the custom user model

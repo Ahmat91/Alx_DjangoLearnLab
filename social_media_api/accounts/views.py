@@ -6,7 +6,7 @@ from .models import CustomUser
 from .serializers import UserCreateSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-
+from notifications.utils import create_notification
 
 # --- Registration View ---
 class RegisterView(generics.CreateAPIView):
@@ -89,13 +89,18 @@ class FollowViewSet(viewsets.GenericViewSet):
         if user_to_follow in follower.following.all():
             return Response({"detail": f"You are already following {user_to_follow.username}."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Add user_to_follow to the follower's 'following' list.
-        # This adds 'follower' to user_to_follow's 'followers' list.
+        create_notification(
+            recipient=user_to_follow, 
+            actor=follower, 
+            verb='started following you', 
+            target=follower 
+        )
         follower.following.add(user_to_follow) 
         follower.save()
 
         return Response({"detail": f"You are now following {user_to_follow.username}."}, status=status.HTTP_200_OK)
-
+    
+   
     # Map to: /auth/unfollow/{pk}/
     @action(detail=True, methods=['post'])
     def unfollow(self, request, pk=None):
@@ -114,3 +119,4 @@ class FollowViewSet(viewsets.GenericViewSet):
         follower.save()
 
         return Response({"detail": f"You have unfollowed {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
+    
