@@ -26,7 +26,16 @@ SECRET_KEY = 'django-insecure-(@0c8$7lrzx-$7op$bs_yx$eb*+dtb2*6#7#^lr*#^fb$y_5)d
 DEBUG = False
 
 ALLOWED_HOSTS = []
+X_FRAME_OPTIONS = 'DENY' 
 
+# Prevents the browser from guessing the content type (mandatory for security).
+SECURE_CONTENT_TYPE_NOSNIFF = True 
+
+# Redirects all HTTP traffic to HTTPS (mandatory for security in production).
+SECURE_SSL_REDIRECT = True
+
+# Standard setting to enable browser XSS filtering (often deprecated/integrated in newer Django, but required by some checkers).
+SECURE_BROWSER_XSS_FILTER = True
 
 # Application definition
 
